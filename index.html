@@ -1,0 +1,1503 @@
+  <!DOCTYPE html>
+  <html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ci-studios</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/loaders/GLTFLoader.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// Ejemplo: Hacer que el plano reciba sombras
+gridHelper.receiveShadow = true;
+
+
+      body {
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+        background-color: #333;
+        height: 100%;
+      }
+
+      /* Header */
+      #header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 35px;
+        background-color: #2c2c2c;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 10px;
+        z-index: 2;
+      }
+
+      #header .menu {
+        display: flex;
+      }
+
+      #header .menu button {
+        background-color: #444;
+        border: none;
+        color: #fff;
+        padding: 4px 8px;
+        margin: 0 5px;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+      }
+
+      #header .menu button i {
+        margin-right: 5px;
+      }
+
+      #header .menu button:hover {
+        background-color: #555;
+      }
+
+      /* Sidebar */
+      #sidebar {
+        position: fixed;
+        top: 35px;
+        left: 0;
+        width: 160px;
+        height: calc(100% - 135px);
+        background-color: #2c2c2c;
+        color: #fff;
+        padding: 5px;
+        overflow-y: auto;
+        z-index: 1;
+      }
+
+      #sidebar .section {
+        margin-bottom: 10px;
+      }
+
+      #sidebar .section h3 {
+        font-size: 12px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #444;
+        padding-bottom: 4px;
+      }
+
+      #sidebar .section button {
+        width: 100%;
+        background-color: #444;
+        border: none;
+        color: #fff;
+        padding: 5px;
+        margin-bottom: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+      }
+
+      #sidebar .section button i {
+        margin-right: 8px;
+      }
+
+      #sidebar .section button:hover {
+        background-color: #555;
+      }
+      .section {
+  margin-bottom: 20px;
+}
+
+.section button {
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#videoModal {
+  margin-top: 20px;
+  text-align: center;
+}
+
+#recordedVideo {
+  width: 80%;
+}
+
+button {
+  padding: 10px;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+
+      /* Timeline */
+      #timeline {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background-color: #2c2c2c;
+        color: #fff;
+        padding: 10px;
+        border-top: 1px solid #444;
+        z-index: 1;
+      }
+      button {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 5px px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #555;
+}
+
+.current-frame {
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background-color: red;
+  pointer-events: none;
+}
+
+.keyframe-marker {
+  width: 10px;
+  height: 10px;
+  background-color: yellow;
+  border-radius: 50%;
+  position: absolute;
+  top: 20px;
+  cursor: pointer;
+}
+
+.keyframe-marker:hover {
+  background-color: orange;
+}
+
+.frame-line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background-color: #555;
+}
+
+.frame-line:hover {
+  background-color: #888;
+}
+
+/* Estilos para el menú emergente */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ddd;
+}
+
+      /* Main Viewport */
+      #viewport {
+        position: absolute;
+        top: 0.1px;
+        left: 160px;
+        bottom: 1000px;
+        right: 0;
+        background-color: #555;
+      }
+
+      #viewport canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Object list panel */
+      #objectPanel {
+        position: fixed;
+        top: 30px;
+        right: 10px;
+        width: 200px;
+        background-color: rgba(44, 44, 44, 0.7);
+        color: #fff;
+        padding: 10px;
+        z-index: 2;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      #objectPanel h3 {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      #objectPanel ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      #objectPanel ul li {
+        margin-bottom: 5px;
+        cursor: pointer;
+      }
+
+      #objectPanel ul li:hover {
+        color: #ffcc00;
+      }
+      #fileOptionsModal button {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 0px 0px;
+  margin: 0px 0;
+  cursor: pointer;
+  border-radius: 0px;
+}
+
+#fileOptionsModal button:hover {
+  background-color: #555;
+}
+
+      /* Fondo borroso */
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(10px); /* Efecto de desenfoque */
+    display: none; /* Inicialmente oculto */
+}
+
+/* Contenedor para la imagen */
+#overlayContent {
+    position: relative;
+    text-align: center;
+}
+
+#overlayContent img {
+    max-width: 50%;
+    max-height: 50%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+.section {
+  margin-bottom: 20px;
+}
+
+.section h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.section label {
+  color: #fff;
+  margin-right: 10px;
+}
+
+.section input, .section select {
+  padding: 5px;
+  margin-top: 5px;
+  width: 200px;
+}
+
+.section select {
+  width: 220px;
+}
+
+
+
+      /* Modal for object options */
+      #objectOptionsModal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        color: white;
+        display: none;
+        z-index: 3;
+      }
+
+      #objectOptionsModal button {
+        background-color: #444;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        margin-top: 10px;
+        cursor: pointer;
+      }
+
+      #objectOptionsModal button:hover {
+        background-color: #555;
+      }
+
+      #closeModal {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <div id="header">
+      <div class="menu">
+        <button><i class="fas fa-file"></i>File</button>
+        <!-- Modal for File Options -->
+<div id="fileOptionsModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(44, 44, 44, 0.9); padding: 2000px; border-radius: 100px; color: white; z-index: 1000;">
+  <h3>File Options</h3>
+  <button id="importButton" style="margin-bottom: 5px;">Importar</button><br>
+  <button id="exportButton">Exportar</button><br>
+  <button id="closeFileModal" style="margin-top: 5px;">Cerrar</button>
+</div>
+
+
+        <!-- Botón para editar -->
+
+<!-- Menú emergente para escuchar música -->
+<div id="musicMenu" class="modal">
+    <div class="modal-content">
+        <h2>Escuchar Música</h2>
+        <audio id="audioPlayer" controls>
+            <source src="musicas/the perfect.mp3" type="audio/mp3"> <!-- Música por defecto -->
+            
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+        <br>
+        <input type="file" id="fileInput" accept=".mp3" />
+        <br><br>
+        <button id="closeButton">Cerrar</button>
+    </div>
+</div>
+
+        <button><i class="fas fa-play"></i>Render</button>
+      </div>
+      <div class="menu">
+                    <button id="btnHelp">
+  <i class="fas fa-question-circle"></i> Help
+</button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div class="section">
+        <h3>Tools</h3>
+        <button id="move"><i class="fas fa-arrows-alt"></i> Move</button>
+        <button id="rotate"><i class="fas fa-redo"></i> Rotate</button>
+        <button id="scale"><i class="fas fa-expand"></i> Scale</button>
+      </div>
+      <!-- Add Menu -->
+      <div class="section">
+        <h3>Add</h3>
+        <button onclick="createCube()"><i class="fas fa-cube"></i> Cube</button>
+        <button onclick="createSphere()"><i class="fas fa-circle"></i> Sphere</button>
+        <button onclick="createCylinder()"><i class="fas fa-caret-up"></i> Cylinder</button>
+        <button onclick="createPlane()"><i class="fas fa-th-large"></i> Plane</button>
+        <button onclick="createCone()"><i class="fas fa-caret-square-up"></i> Cone</button>
+        <button onclick="addMonkey()" id="addMonkey"><i class="fas fa-paw"></i> Monkey</button>
+
+        <div class="section">
+  <h3>Materiales</h3>
+  <button onclick="applyTexture()"><i class="fas fa-image"></i> Texturizar</button>
+  <button id="btnColor"><i class="fas fa-palette"></i> Color</button>
+
+  <button onclick="adjustTransparency()"><i class="fas fa-adjust"></i> Transparencia</button>
+  <button onclick="adjustEmission()"><i class="fas fa-sun"></i> Emisión</button>
+  <button onclick="showPhysicsMenu()"><i class="fas fa-weight"></i> Físicas</button>
+</div>
+<div id="menuRender">
+  <h3>Render</h3>
+  <button onclick="renderImage()">Render Imagen</button>
+  
+  <div class="section">
+  <button id="renderVideoButton">Render Video</button>
+</div>
+
+<!-- Mensaje de estado -->
+<p id="statusMessage" style="font-weight: bold;"></p>
+
+<!-- Modal para mostrar el video grabado -->
+<div id="videoModal" style="display: none; margin-top: 20px;">
+  <video id="recordedVideo" controls style="width: 100%;"></video>
+  <a id="downloadLink" href="#" style="display: none; margin-top: 10px;">Descargar Video</a>
+  <button id="copyLinkButton" style="display: none;">Copiar Enlace</button>
+</div>
+
+</div>
+<h3>settings</h3>
+        <button id="btnEdit"<i class="fas fa-edit"></i>musica</button>
+        <div class="section">
+  
+  <label for="gridHelperToggle">Mostrar Grid:</label>
+  <input type="checkbox" id="gridHelperToggle" checked>
+</div>
+<div class="section">
+  <h3>Background</h3>
+
+  <!-- Opción para elegir fondo de imágenes predeterminadas -->
+  <label for="backgroundSelector">Seleccionar fondo:</label>
+  <select id="backgroundSelector">
+    <option value="image1">Fondo 1</option>
+    <option value="image2">Fondo 2</option>
+    <option value="image3">Fondo 3</option>
+  </select>
+  <br><br>
+
+  <!-- Opción para importar una imagen 360 -->
+  <label for="import360">Importar 360:</label>
+  <input type="file" id="import360" accept="image/*">
+  <br><br>
+
+  <!-- Opción para cambiar el color del fondo -->
+  <label for="backgroundColorPicker"> color de fondo:</label>
+  <input type="color" id="backgroundColorPicker" value="#000000">
+</div>
+<div class="section">
+  <h3>Programación en JavaScript</h3>
+  <button id="codeButton">Code</button>
+  
+  <!-- Área para escribir el código -->
+  <div id="codeEditor" style="display:none;">
+    <textarea id="codeInput" rows="10" cols="50" placeholder="Escribe tu código JavaScript aquí..."></textarea>
+    <br>
+    <button id="executeCodeButton">Ejecutar Código</button>
+  </div>
+</div>
+
+
+
+
+</div>
+
+
+
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div id="timeline">
+      <div id="blenderTimeline" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 100px; background-color: #2c2c2c; border-top: 1px solid #444; display: flex; flex-direction: column;">
+  <!-- Barra de herramientas -->
+  <div id="timelineToolbar" style="height: 40px; display: flex; align-items: center; justify-content: space-between; background-color: #333; padding: 5px;">
+    <div style="display: flex; gap: 10px;">
+      <button id="btnFirstFrame" title="Ir al fotograma inicial"><i class="fas fa-step-backward"></i></button>
+      <button id="btnPreviousFrame" title="Fotograma anterior"><i class="fas fa-chevron-left"></i></button>
+      <button id="btnPlay" title="Reproducir"><i class="fas fa-play"></i></button>
+      <button id="btnPause" title="Pausar"><i class="fas fa-pause"></i></button>
+      <button id="btnNextFrame" title="Fotograma siguiente"><i class="fas fa-chevron-right"></i></button>
+      <button id="btnLastFrame" title="Ir al último fotograma"><i class="fas fa-step-forward"></i></button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button id="btnAddKeyframe" title="Añadir keyframe manual"><i class="fas fa-plus"></i> Keyframe</button>
+
+
+      </label>
+    </div>
+  </div>
+  <!-- Contenedor del timeline -->
+  <div id="timelineContainer" style="flex: 1; overflow-x: auto; position: relative; background-color: #2c2c2c;">
+    <div id="timelineFrames" style="position: relative; height: 100%; width: 2000px;">
+      <div id="frameLines" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+      <div id="keyframeMarkers" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+      <div id="currentFrameMarker" class="current-frame"></div>
+    </div>
+  </div>
+</div>
+
+      
+  
+    </div>
+    
+
+    <!-- Main Viewport -->
+    <div id="viewport">
+      <canvas id="canvas3D"></canvas>
+    </div>
+
+    <!-- Object Panel -->
+    <div id="objectPanel">
+      <h3>Objects</h3>
+      <ul id="objectList"></ul>
+    </div>
+
+    <!-- Modal for object options -->
+    <div id="objectOptionsModal">
+      <span id="closeModal">X</span>
+      <p>Options for <span id="selectedObjectName"></span></p>
+      <input type="text" id="newName" placeholder="Enter new name" />
+      <button id="renameObject">Rename</button>
+      <button id="deleteObject">Delete</button>
+    </div>
+    <div id="overlay" onclick="closeOverlay()">
+    <div id="overlayContent">
+        <img src="images/CISTUDIOS.png" alt="Imagen de inicio">
+    </div>
+
+    <script>
+      // Configuración inicial de la escena
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xf0f0f0);
+
+      // Grid Helper
+      const gridHelper = new THREE.GridHelper(50, 50);
+      scene.add(gridHelper);
+
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 5, 10);
+      camera.lookAt(0, 0, 0);
+
+      const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3D') });
+      renderer.setSize(window.innerWidth - 16, window.innerHeight - 13);
+      document.body.appendChild(renderer.domElement);
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+      // TransformControls
+      const transformControls = new THREE.TransformControls(camera, renderer.domElement);
+      scene.add(transformControls);
+
+      const objects = [];
+      const objectNames = [];
+
+// Botón "File" abre el modal de opciones
+document.querySelector('.menu button:first-child').addEventListener('click', () => {
+  document.getElementById('fileOptionsModal').style.display = 'block';
+});
+
+// Cerrar el modal
+document.getElementById('closeFileModal').addEventListener('click', () => {
+  document.getElementById('fileOptionsModal').style.display = 'none';
+});
+
+
+// Función para exportar el proyecto
+document.getElementById('exportButton').addEventListener('click', () => {
+  const exporter = new THREE.GLTFExporter();
+  exporter.parse(
+    scene,
+    (result) => {
+      const blob = new Blob([JSON.stringify(result)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'proyecto.gltf';
+      link.click();
+    },
+    { binary: false }
+  );
+});
+
+
+// Función para importar proyectos y archivos 3D
+document.getElementById('importButton').addEventListener('click', () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.gltf,.glb,.fbx';
+  input.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    const fileType = file.name.split('.').pop().toLowerCase();
+
+    if (fileType === 'gltf' || fileType === 'glb') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        loader.parse(e.target.result, '', (gltf) => {
+          scene.add(gltf.scene);
+          updateObjectList();
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    } else if (fileType === 'fbx') {
+      const fbxLoader = new THREE.FBXLoader();
+      fbxLoader.load(URL.createObjectURL(file), (fbx) => {
+        scene.add(fbx);
+        updateObjectList();
+      });
+    } else {
+      alert('Formato no soportado. Usa GLTF, GLB o FBX.');
+    }
+  });
+  input.click();
+});
+let currentFrame = 0;
+let isPlaying = false;
+const fps = 24;
+const totalFrames = 200;
+const timelines = new Map(); // Map para almacenar timelines por objeto
+let currentObject = null; // Objeto seleccionado actualmente
+ // Cada objeto tendrá su propio timeline
+
+const frameLines = document.getElementById('frameLines');
+const keyframeMarkers = document.getElementById('keyframeMarkers');
+const currentFrameMarker = document.getElementById('currentFrameMarker');
+function createFrameLines() {
+  frameLines.innerHTML = '';
+  for (let i = 0; i <= totalFrames; i++) {
+    const line = document.createElement('div');
+    line.className = 'frame-line';
+    line.style.left = `${i * 10}px`;
+    frameLines.appendChild(line);
+
+    // Clic para mover el frame actual
+    line.addEventListener('click', () => {
+      currentFrame = i;
+      updateCurrentFrameMarker();
+    });
+  }
+}
+function updateCurrentFrameMarker() {
+  currentFrameMarker.style.left = `${currentFrame * 10}px`;
+}
+function addKeyframe(object) {
+  if (!timelines.has(object)) timelines.set(object, []);
+  const objectTimeline = timelines.get(object);
+
+  objectTimeline.push({
+    frame: currentFrame,
+    position: object.position.clone(),
+    rotation: object.rotation.clone(),
+    scale: object.scale.clone(),
+  });
+
+  addKeyframeMarker(currentFrame);
+}
+function addKeyframeMarker(frame) {
+  const marker = document.createElement('div');
+  marker.className = 'keyframe-marker';
+  marker.style.left = `${frame * 10}px`;
+  keyframeMarkers.appendChild(marker);
+}
+function interpolateKeyframes(object, time) {
+  const objectTimeline = timelines.get(object);
+  if (!objectTimeline || objectTimeline.length < 2) return;
+
+  let startKeyframe = null;
+  let endKeyframe = null;
+
+  for (let i = 0; i < objectTimeline.length - 1; i++) {
+    if (time >= objectTimeline[i].frame && time <= objectTimeline[i + 1].frame) {
+      startKeyframe = objectTimeline[i];
+      endKeyframe = objectTimeline[i + 1];
+      break;
+    }
+  }
+
+  if (!startKeyframe || !endKeyframe) return;
+
+  const t = (time - startKeyframe.frame) / (endKeyframe.frame - startKeyframe.frame);
+
+  object.position.lerpVectors(startKeyframe.position, endKeyframe.position, t);
+  object.rotation.set(
+    THREE.MathUtils.lerp(startKeyframe.rotation.x, endKeyframe.rotation.x, t),
+    THREE.MathUtils.lerp(startKeyframe.rotation.y, endKeyframe.rotation.y, t),
+    THREE.MathUtils.lerp(startKeyframe.rotation.z, endKeyframe.rotation.z, t)
+  );
+  object.scale.lerpVectors(startKeyframe.scale, endKeyframe.scale, t);
+}
+function playAnimation(objects) {
+  if (isPlaying) return;
+  isPlaying = true;
+
+  function animate() {
+    if (!isPlaying) return;
+
+    currentFrame++;
+    if (currentFrame > totalFrames) {
+      isPlaying = false;
+      return;
+    }
+
+    updateCurrentFrameMarker();
+    objects.forEach((object) => interpolateKeyframes(object, currentFrame));
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+document.getElementById('btnPlay').addEventListener('click', () => playAnimation([...timelines.keys()]));
+document.getElementById('btnPause').addEventListener('click', () => { isPlaying = false; });
+document.getElementById('btnAddKeyframe').addEventListener('click', () => {
+  if (transformControls.object) {
+    addKeyframe(transformControls.object);
+  } else {
+    alert('Selecciona un objeto primero.');
+  }
+});
+
+// Navegación de frames
+document.getElementById('btnFirstFrame').addEventListener('click', () => { currentFrame = 0; updateCurrentFrameMarker(); });
+document.getElementById('btnLastFrame').addEventListener('click', () => { currentFrame = totalFrames; updateCurrentFrameMarker(); });
+document.getElementById('btnPreviousFrame').addEventListener('click', () => { currentFrame = Math.max(0, currentFrame - 1); updateCurrentFrameMarker(); });
+document.getElementById('btnNextFrame').addEventListener('click', () => { currentFrame = Math.min(totalFrames, currentFrame + 1); updateCurrentFrameMarker(); });
+function selectObject(object) {
+  // Actualizar el objeto actual
+  currentObject = object;
+
+  // Si el objeto no tiene un timeline, crearlo
+  if (!timelines.has(object)) {
+    timelines.set(object, []); // Inicializar timeline vacío
+  }
+
+  // Cargar el timeline del objeto actual
+  loadTimelineForObject(object);
+}
+function loadTimelineForObject(object) {
+  const objectTimeline = timelines.get(object);
+
+  // Limpiar los marcadores de keyframes actuales
+  const keyframeMarkers = document.getElementById('keyframeMarkers');
+  keyframeMarkers.innerHTML = '';
+
+  // Mostrar los keyframes del objeto seleccionado
+  objectTimeline.forEach((keyframe) => {
+    addKeyframeMarker(keyframe.frame);
+  });
+}
+
+// Obtener los elementos del DOM
+const btnEdit = document.getElementById('btnEdit');
+const musicMenu = document.getElementById('musicMenu');
+const closeButton = document.getElementById('closeButton');
+const fileInput = document.getElementById('fileInput');
+const audioPlayer = document.getElementById('audioPlayer');
+
+// Mostrar el menú cuando se presiona el botón Edit
+btnEdit.addEventListener('click', () => {
+    musicMenu.style.display = 'flex'; // Mostrar el modal
+});
+
+// Cerrar el menú cuando se presiona el botón "Cerrar"
+closeButton.addEventListener('click', () => {
+    musicMenu.style.display = 'none'; // Ocultar el modal
+});
+
+// Permitir al usuario importar su propia música MP3
+fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0]; // Obtener el archivo seleccionado
+
+    // Verificar si el archivo existe y si es un archivo MP3
+    if (file) {
+        // Verificar la extensión del archivo (tipo MIME)
+        const fileType = file.type;
+        if (fileType === 'audio/mpeg' || file.name.endsWith('.mp3')) {
+            const fileURL = URL.createObjectURL(file); // Crear una URL para el archivo
+            audioPlayer.src = fileURL; // Establecer la fuente del reproductor de audio
+            audioPlayer.play(); // Reproducir la música importada
+        } else {
+            alert('Por favor selecciona un archivo MP3.');
+        }
+    }
+});
+
+let selectedObject = null;  // Almacena el objeto seleccionado en la escena
+document.getElementById('codeButton').addEventListener('click', () => {
+  document.getElementById('codeEditor').style.display = 'block';  // Mostrar el área de código
+});
+document.getElementById('executeCodeButton').addEventListener('click', () => {
+  const code = document.getElementById('codeInput').value;
+
+  try {
+    // Usamos eval para ejecutar el código JavaScript
+    eval(code);
+    console.log('Código ejecutado correctamente');
+  } catch (error) {
+    console.error('Error al ejecutar el código:', error);
+    alert('Error en el código. Revisa la consola para más detalles.');
+  }
+});
+// Función para limpiar el área de texto después de ejecutar el código
+document.getElementById('executeCodeButton').addEventListener('click', () => {
+  // Ejecutar el código ingresado
+  const code = document.getElementById('codeInput').value;
+  
+  try {
+    eval(code); // Ejecutar el código ingresado
+    console.log('Código ejecutado correctamente');
+    
+    // Limpiar el cuadro de texto después de ejecutar el código
+    document.getElementById('codeInput').value = '';  // Limpiar el área de texto
+    alert('Código ejecutado. Puedes escribir otro código.');
+
+  } catch (error) {
+    console.error('Error al ejecutar el código:', error);
+    alert('Error en el código. Revisa la consola para más detalles.');
+  }
+});
+
+
+      // Función para crear cubo
+      function createCube() {
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 0xb8b8b8 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+        objects.push(cube);
+        objectNames.push('Cube ' + objects.length);
+        addObjectToPanel('Cube ' + objects.length, cube);
+      }
+      function addSunLight() {
+    // Crear la luz
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+    sunLight.position.set(10, 10, 10);
+    sunLight.castShadow = true;
+    sunLight.shadow.radius = 5; // Difuminado de sombras
+    scene.add(sunLight);
+
+    // Mostrar panel de configuración
+    showLightOptions(sunLight);
+}
+
+function showLightOptions(light) {
+    // Crear el contenedor para las opciones
+    const optionsDiv = document.createElement('div');
+    optionsDiv.id = 'lightOptions';
+    optionsDiv.style.position = 'fixed';
+    optionsDiv.style.bottom = '110px';
+    optionsDiv.style.left = '10px';
+    optionsDiv.style.backgroundColor = '#222';
+    optionsDiv.style.padding = '10px';
+    optionsDiv.style.borderRadius = '5px';
+    optionsDiv.style.color = '#fff';
+    optionsDiv.style.zIndex = '2';
+
+    // Agregar controles
+    optionsDiv.innerHTML = `
+        <label>Intensidad: <input type="range" min="0" max="2" step="0.1" value="${light.intensity}" id="intensityControl"></label><br>
+        <label>Color: <input type="color" value="#ffffff" id="colorControl"></label><br>
+        <label>Sombra Difusa: <input type="range" min="0" max="10" step="1" value="${light.shadow.radius}" id="shadowControl"></label><br>
+        <button id="closeLightOptions">OK</button>
+    `;
+
+    document.body.appendChild(optionsDiv);
+
+    // Eventos para controlar los parámetros
+    document.getElementById('intensityControl').addEventListener('input', (e) => {
+        light.intensity = e.target.value;
+    });
+    document.getElementById('colorControl').addEventListener('input', (e) => {
+        light.color.set(e.target.value);
+    });
+    document.getElementById('shadowControl').addEventListener('input', (e) => {
+        light.shadow.radius = e.target.value;
+    });
+
+    // Botón para cerrar opciones
+    document.getElementById('closeLightOptions').addEventListener('click', () => {
+        document.body.removeChild(optionsDiv);
+    });
+}
+let backgroundTexture = null; // Para almacenar la textura del fondo
+let sceneBackgroundColor = new THREE.Color(0x000000); // Color de fondo por defecto
+// Opciones de imágenes predeterminadas para el fondo
+const backgrounds = {
+  image1: '/images/cielo azul.jpg',  // Ruta de la primera imagen
+  image2: '/images/atardecer.jpg',  // Ruta de la segunda imagen
+  image3: '/images/noche.jpg',  // Ruta de la tercera imagen
+};
+
+// Función para cambiar el fondo
+function changeBackground() {
+  const selectedOption = document.getElementById('backgroundSelector').value;
+  const fileInput = document.getElementById('import360');
+  const colorInput = document.getElementById('backgroundColorPicker');
+  
+  // Cambiar el fondo con la imagen seleccionada
+  if (selectedOption && backgrounds[selectedOption]) {
+    const textureLoader = new THREE.TextureLoader();
+    backgroundTexture = textureLoader.load(backgrounds[selectedOption]);
+
+    // Aplicar la textura al fondo de la escena
+    scene.background = backgroundTexture;
+  }
+
+  // Cambiar a imagen 360 importada
+  fileInput.addEventListener('change', (event) => {
+    if (event.target.files.length) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function () {
+        const textureLoader = new THREE.TextureLoader();
+        backgroundTexture = textureLoader.load(reader.result);
+        scene.background = backgroundTexture;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Cambiar el color de fondo
+  colorInput.addEventListener('input', (event) => {
+    const color = new THREE.Color(event.target.value);
+    scene.background = color;  // Aplicar el color elegido
+  });
+}
+
+// Llamar a la función cuando se cambie la opción del fondo
+document.getElementById('backgroundSelector').addEventListener('change', changeBackground);
+
+// Llamar a la función para que se aplique el color de fondo por defecto al cargar la página
+changeBackground();
+function load360Image(imageURL) {
+  const textureLoader = new THREE.TextureLoader();
+  textureLoader.load(imageURL, (texture) => {
+    texture.mapping = THREE.EquirectangularRefractionMapping;  // Mapeo de imagen 360
+    scene.background = texture;  // Establecer como fondo 360
+  });
+}
+
+
+      // Función para crear esfera
+      function createSphere() {
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0xb8b8b8 });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+        objects.push(sphere);
+        objectNames.push('Sphere ' + objects.length);
+        addObjectToPanel('Sphere ' + objects.length, sphere);
+      }
+
+// Función para renderizar y guardar una imagen PNG
+function renderImage() {
+  renderer.render(scene, camera); // Asegúrate de que 'renderer', 'scene' y 'camera' estén configurados.
+  const imgData = renderer.domElement.toDataURL("image/png");
+
+  const link = document.createElement("a");
+  link.download = "render.png";
+  link.href = imgData;
+  link.click();
+}
+
+// Función para Render Video (placeholder)
+function renderVideo() {
+  alert("La funcionalidad de Render Video aún no está disponible.");
+}
+
+      // Función para crear cilindro
+      function createCylinder() {
+        const geometry = new THREE.CylinderGeometry(1, 1, 2, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0xb8b8b8 });
+        const cylinder = new THREE.Mesh(geometry, material);
+        scene.add(cylinder);
+        objects.push(cylinder);
+        objectNames.push('Cylinder ' + objects.length);
+        addObjectToPanel('Cylinder ' + objects.length, cylinder);
+      }
+      function addObjectToPanel(name, object) {
+    const objectPanel = document.getElementById('objectPanel');
+    const objectItem = document.createElement('div');
+    objectItem.className = 'object-item';
+    objectItem.textContent = name;
+
+    // Seleccionar el objeto al hacer clic en el nombre
+    objectItem.addEventListener('click', () => {
+        selectObject(object);
+    });
+
+    objectPanel.appendChild(objectItem);
+}
+// Asumimos que ya tienes una instancia de gridHelper en tu escena, por ejemplo:
+// O alguna referencia a tu gridHelper
+
+// Función para activar/desactivar el GridHelper
+document.getElementById('gridHelperToggle').addEventListener('change', (e) => {
+  if (gridHelper) {
+    // Activar o desactivar la visibilidad del GridHelper
+    gridHelper.visible = e.target.checked;  // Si está marcado, se muestra; si no, se oculta
+  }
+});
+
+
+// Mostrar el overlay con la imagen al cargar la página
+window.onload = function () {
+    document.getElementById('overlay').style.display = 'flex';
+}
+
+// Cerrar el overlay cuando se hace clic en cualquier lugar del fondo
+function closeOverlay() {
+    document.getElementById('overlay').style.display = 'none';
+}
+let mediaRecorder;
+let recordedChunks = [];
+
+// Elementos del DOM
+const renderButton = document.getElementById('renderVideoButton');
+const statusMessage = document.getElementById('statusMessage');
+const recordedVideo = document.getElementById('recordedVideo');
+const videoModal = document.getElementById('videoModal');
+const downloadLink = document.getElementById('downloadLink');
+const copyLinkButton = document.getElementById('copyLinkButton');
+
+// Comenzar o detener la grabación
+renderButton.addEventListener('click', () => {
+  if (renderButton.textContent === "Render Video") {
+    startRecording();
+  } else {
+    stopRecording();
+  }
+});
+
+// Iniciar grabación
+function startRecording() {
+  const canvas = document.querySelector('canvas'); // Asegúrate de que el video se renderiza en un canvas
+  if (!canvas) {
+    statusMessage.textContent = "No se encontró un canvas para grabar.";
+    return;
+  }
+
+  const videoStream = canvas.captureStream(30); // 30 FPS
+
+  mediaRecorder = new MediaRecorder(videoStream, { mimeType: 'video/webm' });
+  recordedChunks = [];
+
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data.size > 0) {
+      recordedChunks.push(event.data);
+    }
+  };
+
+  mediaRecorder.start();
+  console.log('Grabación iniciada.');
+
+  // Cambiar el botón a "Terminar" y mostrar mensaje
+  renderButton.textContent = "Terminar";
+  statusMessage.textContent = "Grabando...";
+
+  // Detener grabación y mostrar video
+  mediaRecorder.onstop = () => {
+    statusMessage.textContent = "Generando video...";
+    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+    const videoURL = URL.createObjectURL(blob);
+    recordedVideo.src = videoURL;
+
+    // Subir el video a File.io y obtener un enlace accesible
+    uploadVideoToFileIO(blob);
+  };
+}
+
+// Detener grabación
+function stopRecording() {
+  mediaRecorder.stop();
+  console.log('Grabación detenida.');
+
+  // Cambiar el botón a "Render Video"
+  renderButton.textContent = "Render Video";
+
+  // Deshabilitar el botón temporalmente
+  renderButton.disabled = true;
+}
+
+// Subir video a File.io y obtener el enlace
+async function uploadVideoToFileIO(blob) {
+  const formData = new FormData();
+  formData.append('file', blob, 'video_rendered.webm');
+
+  try {
+    const response = await fetch('https://file.io/', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Error en la respuesta del servidor');
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      const videoURL = result.link;
+      // Mostrar el video y el enlace de descarga
+      videoModal.style.display = "block";
+      downloadLink.href = videoURL;
+      downloadLink.textContent = "Descargar Video";
+      downloadLink.style.display = "inline-block";
+
+      // Hacer que el enlace sea clickeable y se pueda compartir
+      copyLinkButton.style.display = "inline-block";
+      downloadLink.style.color = "#007BFF"; // Asegura que el enlace se vea como clickeable
+
+      // Copiar el enlace al portapapeles cuando el usuario hace clic en "Copiar Enlace"
+      copyLinkButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(videoURL).then(() => {
+          statusMessage.textContent = 'Enlace copiado al portapapeles. ¡Comparte en WhatsApp!';
+        }).catch((err) => {
+          statusMessage.textContent = 'Error al copiar el enlace: ' + err;
+        });
+      });
+    }
+  } catch (error) {
+    statusMessage.textContent = `Error: ${error.message}`;
+  }
+}
+
+
+      // Función para crear plano
+      function createPlane() {
+        const geometry = new THREE.PlaneGeometry(5, 5);
+        const material = new THREE.MeshBasicMaterial({ color: 0xb8b8b8, side: THREE.DoubleSide });
+        const plane = new THREE.Mesh(geometry, material);
+        scene.add(plane);
+        objects.push(plane);
+        objectNames.push('Plane ' + objects.length);
+        addObjectToPanel('Plane ' + objects.length, plane);
+      }
+      // Cambiar el color del objeto seleccionado
+document.getElementById('btnColor').addEventListener('click', () => {
+  if (!transformControls.object) {
+    alert("Selecciona un objeto primero.");
+    return;
+  }
+  const loader = new THREE.GLTFLoader(); // Asegúrate de que el GLTFLoader esté disponible
+
+function addMonkey() {
+    const url = 'URL_DEL_MODELO_MONKEY'; // Reemplaza con el enlace al modelo GLTF
+
+    loader.load(
+        url,
+        function (gltf) {
+            const monkey = gltf.scene;
+            monkey.name = `Monkey ${objects.length + 1}`;
+            monkey.scale.set(1, 1, 1); // Escala predeterminada
+            monkey.position.set(0, 0, 0); // Colocar en el origen
+            scene.add(monkey); // Agregar a la escena
+            objects.push(monkey); // Agregar al arreglo de objetos
+            addObjectToPanel(monkey.name, monkey); // Agregar al panel de objetos
+        },
+        function (xhr) {
+            console.log(`Cargando modelo: ${(xhr.loaded / xhr.total) * 100}% completado`);
+        },
+        function (error) {
+            console.error('Error al cargar el modelo:', error);
+        }
+    );
+}
+// Mostrar el overlay con la imagen al cargar la página
+window.onload = function () {
+    document.getElementById('overlay').style.display = 'flex';
+}
+
+// Cerrar el overlay cuando se hace clic en cualquier lugar del fondo
+function closeOverlay() {
+    document.getElementById('overlay').style.display = 'none';
+}
+
+
+  // Crear un selector de color dinámico
+  const colorPicker = document.createElement('input');
+  colorPicker.type = 'color';
+  colorPicker.style.position = 'absolute';
+  colorPicker.style.top = '50%';
+  colorPicker.style.left = '50%';
+  colorPicker.style.transform = 'translate(-50%, -50%)';
+  colorPicker.style.zIndex = '1000';
+  document.body.appendChild(colorPicker);
+
+  // Detectar el cambio de color
+  colorPicker.addEventListener('input', (event) => {
+    const color = event.target.value;
+    transformControls.object.material.color = new THREE.Color(color);
+    transformControls.object.material.needsUpdate = true;
+  });
+
+  // Eliminar el selector de color al perder foco
+  colorPicker.addEventListener('blur', () => {
+    document.body.removeChild(colorPicker);
+  });
+
+  // Forzar la apertura del selector de color
+  colorPicker.focus();
+});
+
+
+      // Función para crear cono
+      function createCone() {
+        const geometry = new THREE.ConeGeometry(1, 2, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0xb8b8b8 });
+        const cone = new THREE.Mesh(geometry, material);
+        scene.add(cone);
+        objects.push(cone);
+        objectNames.push('Cone ' + objects.length);
+        addObjectToPanel('Cone ' + objects.length, cone);
+      }
+
+      const loader = new THREE.GLTFLoader();
+
+// Seleccionar una textura desde los archivos del usuario
+function applyTexture() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const texture = new THREE.TextureLoader().load(reader.result);
+        if (transformControls.object) {
+          transformControls.object.material.map = texture;
+          transformControls.object.material.needsUpdate = true;
+        } else {
+          alert("Por favor selecciona un objeto primero.");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  input.click();
+}
+
+// Ajustar la transparencia del objeto seleccionado
+function adjustTransparency() {
+  if (transformControls.object) {
+    const object = transformControls.object;
+    const newTransparency = prompt("Ingresa un valor de transparencia (0.0 a 1.0):", object.material.opacity || 1);
+    if (newTransparency !== null) {
+      object.material.transparent = true;
+      object.material.opacity = parseFloat(newTransparency);
+      object.material.needsUpdate = true;
+    }
+  } else {
+    alert("Por favor selecciona un objeto primero.");
+  }
+}
+
+// Ajustar la emisión del objeto seleccionado
+function adjustEmission() {
+  if (transformControls.object) {
+    const object = transformControls.object;
+    const newEmission = prompt("Ingresa un valor de emisión (0.0 a 1.0):", object.material.emissiveIntensity || 0);
+    if (newEmission !== null) {
+      object.material.emissive = new THREE.Color(0xffffff);
+      object.material.emissiveIntensity = parseFloat(newEmission);
+      object.material.needsUpdate = true;
+    }
+  } else {
+    alert("Por favor selecciona un objeto primero.");
+  }
+}
+
+// Mostrar el menú de físicas
+function showPhysicsMenu() {
+  if (transformControls.object) {
+    const object = transformControls.object;
+
+    const physicsDiv = document.createElement('div');
+    physicsDiv.style.position = 'fixed';
+    physicsDiv.style.bottom = '150px';
+    physicsDiv.style.left = '10px';
+    physicsDiv.style.backgroundColor = '#222';
+    physicsDiv.style.padding = '10px';
+    physicsDiv.style.borderRadius = '5px';
+    physicsDiv.style.color = '#fff';
+    physicsDiv.style.zIndex = '2';
+
+    physicsDiv.innerHTML = `
+      <label>Peso (kg): <input type="number" id="weightControl" value="${object.userData.weight || 1}" step="0.1"></label><br>
+      <button id="applyPhysics">Aplicar</button>
+      <button id="closePhysicsMenu">Cerrar</button>
+    `;
+
+    document.body.appendChild(physicsDiv);
+
+    document.getElementById('applyPhysics').addEventListener('click', () => {
+      const weight = parseFloat(document.getElementById('weightControl').value);
+      object.userData.weight = weight;
+      object.userData.physicsEnabled = true;
+      alert(`Físicas aplicadas: Peso = ${weight} kg`);
+      document.body.removeChild(physicsDiv);
+    });
+
+    document.getElementById('closePhysicsMenu').addEventListener('click', () => {
+      document.body.removeChild(physicsDiv);
+    });
+  } else {
+    alert("Por favor selecciona un objeto primero.");
+  }
+}
+
+      // Función para cargar el modelo "Monkey"
+      function createMonkey() {
+        const url = 'https://www.mediafire.com/file/08a9k7b200n4sbd/Zussane_modelo.gltf/file';
+
+        loader.load(
+          url,
+          function(gltf) {
+            const model = gltf.scene;
+            model.scale.set(1, 1, 1); // Ajusta la escala si es necesario
+            model.position.set(0, 0, 0); // Posiciona el modelo en el centro de la escena
+            scene.add(model);
+            updateObjectList();
+          },
+          function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+          },
+          function(error) {
+            console.error('An error happened while loading the model:', error);
+          }
+        );
+      }
+      
+
+      // Función para agregar objetos al panel
+      function addObjectToPanel(name, object) {
+        const listItem = document.createElement('li');
+        listItem.textContent = name;
+        listItem.addEventListener('click', () => selectObject(object));
+        document.getElementById('objectList').appendChild(listItem);
+      }
+
+      // Función para seleccionar un objeto y activar la herramienta de mover
+      function selectObject(object) {
+        transformControls.attach(object);
+        transformControls.setMode('translate');
+        document.getElementById('selectedObjectName').textContent = objectNames[objects.indexOf(object)];
+        document.getElementById('objectOptionsModal').style.display = 'block';
+        document.getElementById('closeModal').style.display = 'block';
+      }
+
+
+      // Función para eliminar el objeto
+      document.getElementById('deleteObject').addEventListener('click', () => {
+        const objectName = document.getElementById('selectedObjectName').textContent;
+        const objectIndex = objectNames.indexOf(objectName);
+        if (objectIndex !== -1) {
+          scene.remove(objects[objectIndex]);
+          objects.splice(objectIndex, 1);
+          objectNames.splice(objectIndex, 1);
+          document.getElementById('objectList').innerHTML = '';
+          objects.forEach((obj, index) => addObjectToPanel(objectNames[index], obj));
+          document.getElementById('objectOptionsModal').style.display = 'none';
+          document.getElementById('closeModal').style.display = 'none';
+        }
+      });
+
+      // Función para cambiar el nombre
+      document.getElementById('renameObject').addEventListener('click', () => {
+        const newName = document.getElementById('newName').value;
+        if (newName) {
+          const objectName = document.getElementById('selectedObjectName').textContent;
+          const objectIndex = objectNames.indexOf(objectName);
+          if (objectIndex !== -1) {
+            objectNames[objectIndex] = newName;
+            document.getElementById('selectedObjectName').textContent = newName;
+            document.getElementById('newName').value = '';
+            document.getElementById('objectList').innerHTML = '';
+            objects.forEach((obj, index) => addObjectToPanel(objectNames[index], obj));
+          }
+        }
+      });
+      
+      
+
+      // Cerrar el modal de opciones
+      document.getElementById('closeModal').addEventListener('click', () => {
+        document.getElementById('objectOptionsModal').style.display = 'none';
+        document.getElementById('closeModal').style.display = 'none';
+      });
+
+      // Cambiar el modo de TransformControls
+      document.getElementById('move').addEventListener('click', () => transformControls.setMode('translate'));
+      document.getElementById('rotate').addEventListener('click', () => transformControls.setMode('rotate'));
+      document.getElementById('scale').addEventListener('click', () => transformControls.setMode('scale'));
+
+      // Evento para congelar y descongelar la cámara
+      transformControls.addEventListener('mouseDown', () => controls.enabled = false);
+      transformControls.addEventListener('mouseUp', () => controls.enabled = true);
+
+      // Animación
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+
+      animate();
+      
+  // Configuración para seleccionar objetos táctilmente
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+
+  function onPointerDown(event) {
+    // Obtener las coordenadas del toque/clic
+    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Lanzar un rayo desde la cámara
+    raycaster.setFromCamera(pointer, camera);
+
+    // Detectar intersecciones con los objetos en la escena
+    const intersects = raycaster.intersectObjects(objects, true);
+
+    if (intersects.length > 0) {
+      const selectedObject = intersects[0].object;
+
+      // Conectar el TransformControls al objeto seleccionado
+      transformControls.attach(selectedObject);
+
+      // Mostrar el nombre del objeto en la consola (opcional)
+      console.log('Objeto seleccionado:', selectedObject.name || 'Sin nombre');
+    }
+  }
+
+  // Escuchar eventos táctiles y de mouse
+  renderer.domElement.addEventListener('pointerdown', onPointerDown);
+  // Seleccionar el botón Help
+const btnHelp = document.getElementById('btnHelp');
+
+// Redirigir al enlace al hacer clic
+btnHelp.addEventListener('click', () => {
+    window.location.href = 'https://youtube.com/@cubito...?si=v6n14JlydMDwMxFT';
+});
+</script>
+
+    </script>
+  </body>
+
+  </html>
